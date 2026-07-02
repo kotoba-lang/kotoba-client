@@ -9,14 +9,14 @@
   the deleted `hydrate-and-query-verified!`) is explicitly NOT implemented
   here -- it needs `cacao`'s exact Ed25519 signing surface, which this
   landing does not depend on yet. Tracked as a follow-up, not fabricated."
-  (:require [multiformats.core :as mf]))
+  (:require [ipld.core :as ipld]))
 
 (defn ingest-block
   "Verify `bytes` actually hashes to `claimed-cid` (dag-cbor codec) before
   accepting it. Returns `bytes` on success; throws `ex-info` on CID
   mismatch (never silently accepts unverified content)."
   [claimed-cid bytes]
-  (let [actual-cid (mf/cidv1-dag-cbor bytes)]
+  (let [actual-cid (ipld/cid bytes)]
     (when (not= actual-cid claimed-cid)
       (throw (ex-info "kotoba-client: CID mismatch on block ingest"
                        {:claimed claimed-cid :actual actual-cid})))

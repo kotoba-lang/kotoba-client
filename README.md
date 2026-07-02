@@ -10,14 +10,21 @@ removed with no CLJC replacement plan). See
 `90-docs/adr/2607010930-clj-wgsl-migration.md` Phase 6.
 
 This is the top of the dependency chain landed for that phase:
-`multiformats`/`dag-cbor` (existing) → `prolly-tree` → `quad-store` → `kqe`
-→ `kotoba-client` (this repo).
+`multiformats`/`dag-cbor` (existing) → `ipld` → `prolly-tree` → `quad-store`
+→ `kqe` → `kotoba-client` (this repo).
+
+Since the tag-42 migration (see the superproject ADR), the walk is
+**generic**: `kotoba-client.ipld-hydrate/missing-cids` follows real IPLD
+links via `ipld.core/links`, so one walker hydrates prolly-tree nodes,
+quad-store commit blocks, and commit-dag commits alike.
+`kotoba-client.prolly-hydrate` remains as a delegating compatibility
+facade.
 
 ## Use
 
 ```clojure
 (require '[kotoba-client.core :as kc]
-         '[kotoba-client.prolly-hydrate :as ph]
+         '[kotoba-client.ipld-hydrate :as ih]
          '[prolly-tree.core :as pt])
 
 ;; server side: build a tree, keep its blocks in `server`
@@ -30,7 +37,7 @@ This is the top of the dependency chain landed for that phase:
 (def client-store {:put! (fn [cid bytes] (swap! client assoc cid bytes))
                     :get-fn (fn [cid] (get @client cid))})
 
-(kc/hydrate-via-blocks {:missing-cids ph/missing-cids
+(kc/hydrate-via-blocks {:missing-cids ih/missing-cids
                          :fetch-block (fn [cid] (get @server cid))
                          :store client-store}
                         root)
