@@ -1,7 +1,22 @@
 (ns kotoba-client.core-test
   (:require [clojure.test :refer [deftest is testing]]
             [multiformats.core :as mf]
-            [kotoba-client.core :as kc]))
+            [kotoba-client.core :as kc]
+            #?(:clj [ipns.core :as ipns])
+            #?(:clj [ipns.head :as ipns-head])
+            #?(:clj [ed25519.core :as ed])))
+
+#?(:clj
+   (deftest verify-ipns-head-roundtrip
+     (let [seed (byte-array (range 32))
+           name (ipns/pubkey->name (ed/pubkey-from-seed seed))
+           record {:name name :value "bafyreicid..." :sequence 1
+                    :valid_until "2027-01-01T00:00:00Z"}
+           signed (ipns-head/sign seed record)]
+       (testing "a correctly-signed head verifies"
+         (is (= {:valid? true :name name} (kc/verify-ipns-head signed))))
+       (testing "a tampered head does not"
+         (is (= false (:valid? (kc/verify-ipns-head (assoc signed :value "bafyrei-evil...")))))))))
 
 (deftest ingest-block-accepts-matching-cid
   (let [bytes (.getBytes "hello" "UTF-8")

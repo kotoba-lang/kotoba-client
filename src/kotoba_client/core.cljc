@@ -6,10 +6,12 @@
   `kotoba-lang/kotoba` commit `604896171b`, 2026-07-01).
 
   IPNS-record signature verification (trustless head resolution, mirroring
-  the deleted `hydrate-and-query-verified!`) is explicitly NOT implemented
-  here -- it needs `cacao`'s exact Ed25519 signing surface, which this
-  landing does not depend on yet. Tracked as a follow-up, not fabricated."
-  (:require [ipld.core :as ipld]))
+  the deleted `hydrate-and-query-verified!`) is `verify-ipns-head` below,
+  via `ipns.head` (ADR-2607061800) -- `:clj`-only, matching `ipns.head`'s
+  own JVM-only convention (a `:cljs` port is `ipns.head`'s own tracked
+  follow-up, not fabricated here)."
+  (:require [ipld.core :as ipld]
+            #?(:clj [ipns.head :as ipns-head])))
 
 (defn ingest-block
   "Verify `bytes` actually hashes to `claimed-cid` (dag-cbor codec) before
@@ -55,3 +57,15 @@
           (doseq [cid missing]
             ((:put! store) cid (ingest-block cid (fetch-block cid))))
           (recur (inc round) (+ ingested (count missing))))))))
+
+#?(:clj
+   (defn verify-ipns-head
+     "Trustless verification of a fetched IPNS head record (as
+      `ipns.head/sign` produces, ADR-2607061800): the signature over the
+      record's own fields is checked against its `:public_key_multibase`
+      did:key, with no server trusted to have told the truth about it.
+      Returns `{:valid? bool :name ...}` -- `hydrate-via-blocks` above can
+      then be pointed at `(:value record)` (the verified head's CID) only
+      if `:valid?` is true."
+     [record]
+     (ipns-head/verify record)))
