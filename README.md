@@ -49,15 +49,20 @@ facade.
 on a CID mismatch — untrusted bytes from `fetch-block` are never accepted
 into `store` unverified.
 
+## IPNS-record signature verification
+
+`kotoba-client.core/verify-ipns-head` (ADR-2607061800, `:clj`-only)
+resolves the gap the deleted client's `hydrate-and-query-verified!` once
+covered: a fetched IPNS head record's signature is checked against its
+own `:public_key_multibase` did:key (via `kotoba-lang/tech-ipfs-specs-
+ipns`'s `ipns.head`), with no server trusted to have told the truth —
+`hydrate-via-blocks` should only be pointed at `(:value record)` once
+`:valid?` comes back true.
+
 ## What is NOT in this landing
 
-**IPNS-record signature verification (trustless head resolution)** — the
-deleted client's `hydrate-and-query-verified!` resolved a signed IPNS
-record to a head CID before hydrating, so an untrusted `fetch-block` port
-couldn't serve a stale-but-internally-consistent tree. This repo hydrates
-whatever `root-cid` it is given; verifying that the root itself is the
-*right* one needs `cacao`'s Ed25519 signing surface, which this landing
-does not depend on. Tracked as a follow-up, not fabricated.
+A `:cljs` port of `verify-ipns-head` — `ipns.head` itself is `:clj`-only
+(tracked as its own follow-up, not fabricated here).
 
 A Service-Worker-equivalent request interception (the deleted `kotoba-sw.js`
 transparently answering same-origin `datomic.q` fetches from the local

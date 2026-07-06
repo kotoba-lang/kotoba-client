@@ -1,5 +1,9 @@
 {:paths ["src"]
- :deps {io.github.kotoba-lang/io-ipld {:git/sha "fe67f8e4233792e606da75fceace89a1e6e2ae01"}}
+ :deps {io.github.kotoba-lang/io-ipld {:git/sha "fe67f8e4233792e606da75fceace89a1e6e2ae01"}
+        ;; IPNS head-record signature verification (ADR-2607061800) --
+        ;; pulls in ed25519/dag-cbor transitively via ipns.head's own deps.edn.
+        io.github.kotoba-lang/tech-ipfs-specs-ipns
+        {:git/sha "f3847f2ca37178ecd4c228d871d75ab6ecb1c54f"}}
  :aliases
  {:test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner
