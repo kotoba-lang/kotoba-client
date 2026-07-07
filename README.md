@@ -13,6 +13,14 @@ This is the top of the dependency chain landed for that phase:
 `multiformats`/`dag-cbor` (existing) → `ipld` → `prolly-tree` → `quad-store`
 → `kqe` → `kotoba-client` (this repo).
 
+**Disambiguation (ADR-2607050900):** not to be confused with
+[`kotobase-client`](https://github.com/kotoba-lang/kotobase-client) (a
+separate, CACAO-authed ClojureScript client specific to the kotobase.net
+tenant Datom plane) or [`kotobase`](https://github.com/kotoba-lang/kotobase)
+(the server-side umbrella datom database `kotobase-client` talks to). This
+repo has no CACAO auth and is not scoped to any single tenant — it's a
+generic block-ingest client any browser-side consumer (e.g. `p2p`) can use.
+
 Since the tag-42 migration (see the superproject ADR), the walk is
 **generic**: `kotoba-client.ipld-hydrate/missing-cids` follows real IPLD
 links via `ipld.core/links`, so one walker hydrates prolly-tree nodes,
