@@ -3,7 +3,7 @@
         ;; IPNS head-record signature verification (ADR-2607061800) --
         ;; pulls in ed25519/dag-cbor transitively via ipns.head's own deps.edn.
         io.github.kotoba-lang/tech-ipfs-specs-ipns
-        {:git/sha "f3847f2ca37178ecd4c228d871d75ab6ecb1c54f"}}
+        {:git/sha "9b92f2edcc28e18867a19f56fbaa2812a273a599"}}
  :aliases
  {:test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner
