@@ -1,3 +1,0 @@
-{:tasks
- {test {:doc "Run kotoba-client tests."
-        :task (shell "clojure -M:test")}}}
