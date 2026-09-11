@@ -80,7 +80,7 @@ domain logic, and belongs in a thin adapter once this core is proven.
 ## Test
 
 ```bash
-clojure -M:test
+kbb -M:test
 ```
 
 ## License
