@@ -1,5 +1,5 @@
 (ns kotoba-client.core-test
-  (:require [kotoba.test :refer [deftest is testing]]
+  (:require [kotoba.bytes :as kbytes] [kotoba.test :refer [deftest is testing]]
             [multiformats.core :as mf]
             [kotoba-client.core :as kc]
             #?(:clj [ipns.core :as ipns])
@@ -19,14 +19,14 @@
          (is (= false (:valid? (kc/verify-ipns-head (assoc signed :value "bafyrei-evil...")))))))))
 
 (deftest ingest-block-accepts-matching-cid
-  (let [bytes (.getBytes "hello" "UTF-8")
+  (let [bytes (kbytes/utf8-bytes "hello")
         cid (mf/cidv1-dag-cbor bytes)]
     (is (= bytes (kc/ingest-block cid bytes)))))
 
 (deftest ingest-block-rejects-tampered-bytes
-  (let [bytes (.getBytes "hello" "UTF-8")
+  (let [bytes (kbytes/utf8-bytes "hello")
         cid (mf/cidv1-dag-cbor bytes)
-        tampered (.getBytes "hellx" "UTF-8")]
+        tampered (kbytes/utf8-bytes "hellx")]
     (is (thrown-with-msg? #?(:clj clojure.lang.ExceptionInfo :cljs ExceptionInfo)
                            #"CID mismatch"
                            (kc/ingest-block cid tampered)))))
@@ -37,8 +37,8 @@
   hydrate loop's convergence/port-wiring, not CID computation, which
   `ingest-block-*` above already covers with real CIDs)."
   []
-  {"root" (.getBytes "root-body" "UTF-8")
-   "leaf" (.getBytes "leaf-body" "UTF-8")})
+  {"root" (kbytes/utf8-bytes "root-body")
+   "leaf" (kbytes/utf8-bytes "leaf-body")})
 
 (deftest hydrate-via-blocks-fetches-until-missing-cids-is-empty
   (let [remote (fake-graph)
@@ -48,7 +48,7 @@
         missing-cids (fn [_root _store]
                        (swap! rounds inc)
                        (if (= 1 @rounds) ["fake-cid"] []))
-        fetch-block (fn [cid] (get remote cid (.getBytes "fake-cid-body" "UTF-8")))]
+        fetch-block (fn [cid] (get remote cid (kbytes/utf8-bytes "fake-cid-body")))]
     (with-redefs [kc/ingest-block (fn [_claimed bytes] bytes)] ; bypass real CID check for this port-wiring test
       (let [n (kc/hydrate-via-blocks
                {:missing-cids missing-cids
@@ -66,7 +66,7 @@
          #"did not converge"
          (kc/hydrate-via-blocks
           {:missing-cids (fn [_ _] ["always-missing"]) ; never empties
-           :fetch-block (fn [_] (.getBytes "x" "UTF-8"))
+           :fetch-block (fn [_] (kbytes/utf8-bytes "x"))
            :store {:put! (fn [_ _]) :get-fn (fn [_] nil)}
            :max-rounds 3}
           "root")))))
