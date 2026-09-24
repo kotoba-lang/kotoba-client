@@ -1,7 +1,7 @@
 (ns kotoba-client.ipld-hydrate-test
   "The generic walk hydrates a NON-prolly block graph too: a commit-style
   block whose links point at two leaves."
-  (:require [clojure.test :refer [deftest is]]
+  (:require [kotoba.test :refer [deftest is]]
             [ipld.core :as ipld]
             [kotoba-client.core :as kc]
             [kotoba-client.ipld-hydrate :as ih]))

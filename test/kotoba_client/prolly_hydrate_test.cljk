@@ -3,7 +3,7 @@
   empty 'client' store over injected fetch/store ports, and confirm the
   client can look up every key afterward -- exercising prolly-tree +
   kotoba-client together, not just kotoba-client in isolation."
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [prolly-tree.core :as pt]
             [kotoba-client.core :as kc]
             [kotoba-client.prolly-hydrate :as ph]))
